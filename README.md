@@ -71,3 +71,23 @@ The machine relies on the **Surprise Factor**.
 
 - If the machine was 99% sure you'd pick Alien, and you did, the machine pats itself on the back and only tweaks your stats by a microscopic fraction.
 - But, if you wildly defy expectations and pick Notting Hill, the machine effectively screams, "WHAT AM I DOING WITH MY LIFE?" The massive surprise factor forces the machine to drastically rewrite your stat card, pulling your numbers heavily toward Romance and away from Sci-Fi.
+
+## Remembering
+
+A taste profile is only as good as how well it knows you, and it will struggle to _know_ you if it can't remember the choices you've made. For this problem, I introduce the age-old concept of Event Sourcing. It's essentially what an accountant does but with a fancy name. Every time something happens, we write it down as a fact and never rub it out. By replaying the events, we can figure out what the current state is. For instance, if you're given £10.00 by your delightful nan for being such a good person, you spend £2.00 on the bus fare, £3.50 on coffee, and £4.00 on a ceramic dog figurine to add to your collection. If I were to ask you how much money you have left without counting what's in your hand, you'd have to replay all the transactions in your head: £10 - £2 - £3.50 - £4 = 50p. That's it. That's all that event sourcing is. A log of all the transactions that we use to figure out what the current state is.
+
+This comes with some beautiful bonuses over only storing your current stat card and overwriting it each time.
+
+1. We can change the logic behind our recommendation machine and recalculate everyone's taste profile by replaying every choice through a tweaked learning rate or Surprise Factor.
+2. We can know exactly what choices you've made over time with the machine, which makes it easier for us to explain why we made certain recommendations.
+3. We can build as many read models (different views built from the same log) as we need for specific use cases. For example, a dashboard, a daily summary, testing new engines, whatever you can dream up.
+
+## Side-Thought
+
+I just had a thought that I need to fit in somewhere within this README.
+
+The data I'll be sourcing will be incomplete at best. Therefore, some films will have more fleshed out category data, while others may have a handful, or none at all. This causes three problems when calculating the dot product:
+
+1. Films with more tags will score higher, and get recommended more often, than films with fewer tags. To combat this, I'll shrink every film's stat card to the same overall length, so a film can't win just by having more tags. The boffins call this "cosine similarity".
+2. Vague tags like `drama` are on so many films that they'll massively skew recommendations towards other dramas. To combat this, I'll weight each tag by how rare it is, using `log(total films / films with that tag)`. The boffins call this "inverse document frequency". The `log` stops common tags from being punished too hard, which a straight divide would do.
+3. Films with no tags at all will score 0 for everyone, so picking one teaches the machine nothing. These will need filling in, or leaving out of the pairs entirely.
